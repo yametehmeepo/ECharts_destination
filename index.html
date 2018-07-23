@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>想要一起去的地方</title>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <style>
+        .wrapper{
+            padding: 50px 0 0;
+        }
+        #address{
+            width: 100%;
+        }
+        #map{
+            width: 100%;
+            height: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="row">
+            <div class="col-lg-8 col-xs-12 col-lg-push-3">
+                <div id="map"></div>
+            </div>
+            <div class="col-lg-2 col-xs-12 col-lg-pull-7">
+                <div>
+                    <input type="text" class="form-control" id="address" placeholder="请输入你想去的地方">
+                </div>
+                <div>
+                    <button class="btn btn-small btn-success" id="search">查询</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ECharts单文件引入 -->
+    <script src="dist/js/jQuery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=OfhWyvaVhXf0kvrupzF4NO9Rc6uEuQje"></script>
+    <script src="dist/js/echarts.min.js"></script>
+    <script src="theme/dark.js"></script>
+    <script src="dist/js/china.js"></script>
+    <script>
+        var mapData = [];
+        
+        $(function(){
+            var ak = 'OfhWyvaVhXf0kvrupzF4NO9Rc6uEuQje';
+            var url = 'http://api.map.baidu.com/geocoder/v2/?output=json&ak=' + ak + '&callback=?&address=';
+            $('#search').click(function(){
+                var searchtext = $('#address').val();
+                if(searchtext){
+                    $.getJSON(url + searchtext, function(res){
+                        console.log(res);
+                        if(res.status === 0){
+                            mapData.push({
+                                name: searchtext,
+                                value: [res.result.location.lng, res.result.location.lat]
+                            })
+                            renderMap(searchtext);
+                        }else{
+                            alert('没有查到你要找的地点');
+                        }
+                    })
+                }
+            })
+        })
+
+        function renderMap(name){
+            var myChart = echarts.init(document.getElementById('map'), 'dark');
+            var option = {
+                    backgroundColor: '#38415c',
+                    title: {
+                        text: '想要一起去的地方',
+                        left: 'center',
+                        textStyle: {
+                            color: '#fff'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function (params) {
+                            return params.name
+                        },
+                    },
+                    geo: {
+                        map: 'china',
+                        zoom: 1.2,
+                        label: {
+                            emphasis: {
+                                show: false
+                            }
+                        },
+                        roam: true,
+                        itemStyle: {
+                            emphasis: {
+                                areaColor: '#ffa726'
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: '地址',
+                            type: 'scatter',
+                            coordinateSystem: 'geo',
+                            data: mapData,
+                            symbolSize: 12,
+                            label: {
+                                normal: {
+                                    show: false
+                                },
+                                emphasis: {
+                                    show: false
+                                }
+                            },
+                            itemStyle: {
+                                emphasis: {
+                                    borderColor: '#fff',
+                                    borderWidth: 1
+                                }
+                            }
+                        }
+                    ]
+                }
+            myChart.setOption(option);
+        }
+    </script>
+</body>
