@@ -61,6 +61,7 @@
                     })
                 }
             })
+
         })
 
         function renderMap(name){
@@ -121,5 +122,9 @@
                 }
             myChart.setOption(option);
         }
+        $(window).resize(function(){
+            var myChart = echarts.init(document.getElementById('map'), 'dark');
+            myChart.resize();
+        })
     </script>
 </body>
